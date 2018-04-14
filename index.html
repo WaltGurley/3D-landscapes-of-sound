@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audio Visualizer</title>
+    <meta name="description" content="Audio Visualizer">
+    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+    <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+    
+<!--     <script src="./aframe-audioanalyser-component.js"></script> -->
+    <script src="https://unpkg.com/aframe-audioanalyser-component@^3.0.3/dist/aframe-audioanalyser-component.min.js"></script>
+    <script>
+      AFRAME.registerComponent('volume-scale-x', {
+        schema: {type: 'number', 
+                 default: 1
+        },
+
+        tick: function () {
+          var analyserEl = this.data.analyserEl || this.el;
+          var analyserComponent;
+          var volume;
+
+          analyserComponent = analyserEl.components.audioanalyser;
+          if (!analyserComponent.analyser) { return; }
+          volume = analyserComponent.volume;          
+          
+          var data = this.data;
+          var object3D = this.el.object3D;
+          object3D.scale.x = volume*data;
+        }
+
+//         tick: function () {
+//           var analyserEl = this.data.analyserEl || this.el;
+//           var analyserComponent;
+//           var volume;
+
+//           analyserComponent = analyserEl.components.audioanalyser;
+//           if (!analyserComponent.analyser) { return; }
+//           volume = analyserComponent.volume;          
+          
+//           var data = this.data;
+//           var object3D = this.el.object3D;
+//           var x = data.multiplier.x === 0 ? zeroScale : volume*data.multiplier.x;
+//           var y = data.multiplier.y === 0 ? zeroScale : volume*data.multiplier.y;
+//           var z = data.multiplier.z === 0 ? zeroScale : volume*data.multiplier.z;
+//           object3D.scale.set(x, y, z);
+//         }
+
+//         tick: function () {
+//           var analyserComponent;
+//           var el = this.el;
+//           var volume;
+
+//           analyserComponent = el.components.audioanalyser;
+//           if (!analyserComponent.analyser) { return; }
+
+//           volume = analyserComponent.volume;
+//           el.setAttribute('scale', {
+//             x: volume * this.data.x,
+//             y: volume * this.data.y,
+//             z: volume * this.data.z
+//           });
+//         }
+      });
+      
+      AFRAME.registerComponent('volume-scale-y', {
+        schema: {type: 'number', 
+                 default: 1
+        },
+
+        tick: function () {
+          var analyserEl = this.data.analyserEl || this.el;
+          var analyserComponent;
+          var volume;
+
+          analyserComponent = analyserEl.components.audioanalyser;
+          if (!analyserComponent.analyser) { return; }
+          volume = analyserComponent.volume;          
+          
+          var data = this.data;
+          var object3D = this.el.object3D;
+          object3D.scale.y = volume*data;
+        }
+      });
+      
+      AFRAME.registerComponent('volume-scale-z', {
+        schema: {type: 'number', 
+                 default: 1
+        },
+
+        tick: function () {
+          var analyserEl = this.data.analyserEl || this.el;
+          var analyserComponent;
+          var el = this.el;
+          var volume;
+
+          analyserComponent = analyserEl.components.audioanalyser;
+          if (!analyserComponent.analyser) { return; }
+          volume = analyserComponent.volume;          
+          
+          var data = this.data;
+          var object3D = this.el.object3D;
+          object3D.scale.z = volume*data;
+        }
+      });
+      
+      AFRAME.registerComponent('color-on-beat', {
+        schema: {
+          analyserEl: {type: 'selector'}
+        },
+
+        init: function () {
+          var analyserEl = this.data.analyserEl || this.el;
+          var el = this.el;
+
+          analyserEl.addEventListener('audioanalyser-beat', function () {
+            el.setAttribute('material', 'color', '#' + new THREE.Color(
+              Math.random(), Math.random(), Math.random()
+            ).getHexString());
+          });
+        }
+      });
+      
+      AFRAME.registerComponent('ring-on-beat', {
+        schema: {
+          analyserEl: {type: 'selector'}
+        },
+
+        init: function () {
+          var analyserEl = this.data.analyserEl || this.el;
+          var el = this.el;
+          var rings = this.rings = [];
+
+          analyserEl.addEventListener('audioanalyser-beat', function () {
+            var ringEl = document.createElement('a-ring');
+            ringEl.setAttribute('material', 'opacity', '0.6');
+            ringEl.setAttribute('position', '0 -0.5 0');
+            ringEl.setAttribute('rotation', '-90 0 0');
+            el.appendChild(ringEl);
+
+            ringEl.addEventListener('loaded', function () {
+              rings.push(ringEl);
+              setTimeout(function () {
+                el.removeChild(ringEl);
+                rings.splice(rings.indexOf(ringEl), 1);
+              }, 2000);
+            });
+          });
+        },
+
+        /**
+         * Expand ring radii.
+         */
+        tick: function () {
+          this.rings.forEach(function (ringEl) {
+            var scale = ringEl.getAttribute('scale');
+            ringEl.setAttribute('scale', {
+              x: scale.x * 1.06 + .05,
+              y: scale.y * 1.06 + .05,
+              z: scale.z
+            });
+          });
+        }
+      });
+      
+      AFRAME.registerComponent('audio-terrain', {
+        schema: {
+          bands: {type: 'number', default: 6}, // number of bands in the terrain
+          speed: {type: 'number', default: 1000}, // speed at which bands move along z-axis
+          size: {type: 'vec3', default:{x:1, y:1, z:1} }
+        },
+
+        tick: function () {
+          var analyserEl = this.data.analyserEl || this.el;
+          var analyserComponent;
+          var el = this.el;
+          var volume;
+
+          analyserComponent = analyserEl.components.audioanalyser;
+          if (!analyserComponent.analyser) { return; }
+
+          volume = analyserComponent.volume * this.data.multiplier;
+          el.setAttribute('scale', {
+            x: volume,
+            y: 1,
+            z: volume
+          });
+        }
+      });
+
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-assets>
+        <audio id="song" src="https://cdn.glitch.com/81ac89eb-0c4d-4f3f-b3ae-50c7dd330eb3%2F04.%20Stairway%20To%20Heaven.mp3?1523499841739" autoplay></audio>
+      </a-assets>
+      
+      <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.24" volume-scale-z="0.08" color-on-beat ring-on-beat position="0 1 -4" shadow></a-box>
+      
+      <a-sky color="#ECECEC"></a-sky>
+      <a-entity environment></a-entity>
+
+    </a-scene>
+  </body>
+</html>

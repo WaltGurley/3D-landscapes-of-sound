@@ -1,1 +1,1 @@
-# moogfest-workshop-2018
+# Audio visualization tests
