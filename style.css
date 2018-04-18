@@ -1,0 +1,23 @@
+.audio-controls {
+  font-family: sans-serif,monospace;
+  width: 100%;
+  font-weight: 200;
+  line-height: 16px;
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+}
+
+.pause-btn {
+  position: absolute;
+  z-index: 9999;
+  background: rgba(0,0,0,.35);
+  border: 0;
+  bottom: 0;
+  cursor: pointer;
+  min-width: 50px;
+  min-height: 30px;
+  left: 0;
+  font-size: 2em;
+  color: white;
+}
