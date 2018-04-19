@@ -3,14 +3,15 @@
   <head>
     <title>Audio Visualizer</title>
     <meta name="description" content="Audio Visualizer">
+    <link rel="stylesheet" href="style.css">
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
-    
-<!--     <script src="./aframe-audioanalyser-component.js"></script> -->
-    <script src="https://unpkg.com/aframe-audioanalyser-component@^3.0.3/dist/aframe-audioanalyser-component.min.js"></script>
+
+<script src="./aframe-audioanalyser-component.js"></script>
+    <!-- <script src="https://unpkg.com/aframe-audioanalyser-component@^3.0.3/dist/aframe-audioanalyser-component.min.js"></script> -->
     <script>
       AFRAME.registerComponent('volume-scale-x', {
-        schema: {type: 'number', 
+        schema: {type: 'number',
                  default: 1
         },
 
@@ -21,11 +22,12 @@
 
           analyserComponent = analyserEl.components.audioanalyser;
           if (!analyserComponent.analyser) { return; }
-          volume = analyserComponent.volume;          
-          
+          volume = analyserComponent.volume;
+          // console.log(volume);
+
           var data = this.data;
           var object3D = this.el.object3D;
-          object3D.scale.x = volume*data;
+          object3D.scale.x = volume > 0 ? volume*data : 1;
         }
 
 //         tick: function () {
@@ -35,8 +37,8 @@
 
 //           analyserComponent = analyserEl.components.audioanalyser;
 //           if (!analyserComponent.analyser) { return; }
-//           volume = analyserComponent.volume;          
-          
+//           volume = analyserComponent.volume;
+
 //           var data = this.data;
 //           var object3D = this.el.object3D;
 //           var x = data.multiplier.x === 0 ? zeroScale : volume*data.multiplier.x;
@@ -61,9 +63,9 @@
 //           });
 //         }
       });
-      
+
       AFRAME.registerComponent('volume-scale-y', {
-        schema: {type: 'number', 
+        schema: {type: 'number',
                  default: 1
         },
 
@@ -74,16 +76,16 @@
 
           analyserComponent = analyserEl.components.audioanalyser;
           if (!analyserComponent.analyser) { return; }
-          volume = analyserComponent.volume;          
-          
+          volume = analyserComponent.volume;
+
           var data = this.data;
           var object3D = this.el.object3D;
-          object3D.scale.y = volume*data;
+          object3D.scale.y = volume > 0 ? volume*data : 1;
         }
       });
-      
+
       AFRAME.registerComponent('volume-scale-z', {
-        schema: {type: 'number', 
+        schema: {type: 'number',
                  default: 1
         },
 
@@ -95,14 +97,14 @@
 
           analyserComponent = analyserEl.components.audioanalyser;
           if (!analyserComponent.analyser) { return; }
-          volume = analyserComponent.volume;          
-          
+          volume = analyserComponent.volume;
+
           var data = this.data;
           var object3D = this.el.object3D;
-          object3D.scale.z = volume*data;
+          object3D.scale.z = volume > 0 ? volume*data : 1;
         }
       });
-      
+
       AFRAME.registerComponent('color-on-beat', {
         schema: {
           analyserEl: {type: 'selector'}
@@ -119,7 +121,7 @@
           });
         }
       });
-      
+
       AFRAME.registerComponent('ring-on-beat', {
         schema: {
           analyserEl: {type: 'selector'}
@@ -161,7 +163,7 @@
           });
         }
       });
-      
+
       AFRAME.registerComponent('audio-terrain', {
         schema: {
           bands: {type: 'number', default: 6}, // number of bands in the terrain
@@ -192,14 +194,23 @@
   <body>
     <a-scene>
       <a-assets>
-        <audio id="song" src="https://cdn.glitch.com/81ac89eb-0c4d-4f3f-b3ae-50c7dd330eb3%2F04.%20Stairway%20To%20Heaven.mp3?1523499841739" autoplay></audio>
+        <audio id="song" src="Twiight Motel - Twilight Motel - 13 Find Yourself Away From Here.mp3" crossorigin="anonymous" autoplay></audio>
       </a-assets>
-      
-      <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.24" volume-scale-z="0.08" color-on-beat ring-on-beat position="0 1 -4" shadow></a-box>
-      
+
+      <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.08" volume-scale-z="0.24" color-on-beat ring-on-beat position="0 1 -4" shadow></a-box>
+      <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.24" volume-scale-z="0.08" color-on-beat ring-on-beat position="0 5 -4" shadow></a-box>
+
       <a-sky color="#ECECEC"></a-sky>
       <a-entity environment></a-entity>
-
     </a-scene>
+
+    <div class="audio-controls">
+      <button class="control pause-btn interact" type="button" name="pause-button">Pause</button>
+      <div class="control volume-adjust">
+        <h4 class="volume-label">Volume: </h4>
+        <input type="range" class="volume-slider interact" name="volume-slider" min="0" max="1" value="0.5" step="0.025">
+      </div>
+    </div>
   </body>
+  <script type="text/javascript" src="./audio-controls.js"></script>
 </html>

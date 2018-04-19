@@ -1,0 +1,43 @@
+.audio-controls {
+  display: flex;
+  flex-direction: row;
+  font-family: sans-serif,monospace;
+  width: 100%;
+  font-weight: 200;
+  line-height: 16px;
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+}
+
+.control {
+  z-index: 9999;
+  background: rgba(0,0,0,.35);
+  border: 0;
+  bottom: 0;
+  min-width: 50px;
+  min-height: 30px;
+  left: 0;
+  font-size: 2em;
+  padding: 0.3em;
+  margin-right: 0.3em;
+  color: white;
+}
+
+.interact {
+  cursor: pointer;
+}
+
+.volume-adjust {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 0.3em;
+}
+
+.volume-label {
+  margin: 0;
+  font-weight: normal;
+  font-size: 1em;
+  margin-right: 0.3em;
+}
