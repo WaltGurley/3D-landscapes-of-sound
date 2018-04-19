@@ -192,12 +192,9 @@
     </script>
   </head>
   <body>
-    <div class="audio-controls">
-      <button class="btn pause-btn" type="button" name="pause-button">Pause</button>
-    </div>
     <a-scene>
       <a-assets>
-        <audio id="song" src="./Twilight Motel - Twilight Motel - 13 Find Yourself Away From Here.mp3" autoplay></audio>
+        <audio id="song" src="Twiight Motel - Twilight Motel - 13 Find Yourself Away From Here.mp3" crossorigin="anonymous" autoplay></audio>
       </a-assets>
 
       <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.08" volume-scale-z="0.24" color-on-beat ring-on-beat position="0 1 -4" shadow></a-box>
@@ -205,8 +202,15 @@
 
       <a-sky color="#ECECEC"></a-sky>
       <a-entity environment></a-entity>
-
     </a-scene>
+
+    <div class="audio-controls">
+      <button class="control pause-btn interact" type="button" name="pause-button">Pause</button>
+      <div class="control volume-adjust">
+        <h4 class="volume-label">Volume: </h4>
+        <input type="range" class="volume-slider interact" name="volume-slider" min="0" max="1" value="0.5" step="0.025">
+      </div>
+    </div>
   </body>
   <script type="text/javascript" src="./audio-controls.js"></script>
 </html>
