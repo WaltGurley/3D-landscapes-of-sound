@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <title>FFT</title>
+        <meta name="description" content="Audio Visualizer">
+        <link rel="stylesheet" href="style.css">
+        <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+        <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+        <script src="./aframe-audioanalyser-component.js"></script>
+        <script src="./scale-y-color.js"></script>
+        <script src="./aframe-layout-component.js"></script>
+        <script>
+            AFRAME.registerComponent('fft', {
+                schema: {
+                    bins: {type: 'number', default: 0},             // how many bars?
+                    shape: {default:'bar'}        // what shape / mixin should be drawn for bars?
+                },           
+
+                init: function(){
+                    var binAttrib = this.el.getAttribute("fft-bins");
+                    this.bins = this.data.bins==false? (binAttrib?binAttrib:8) : this.data.bins;   // if user does not provide number of bins in data, then grab from fft-bins attribute. If unavailalbe, set to 8.
+                    for (var i = 0; i < this.bins; i++) {
+                        var entity = document.createElement('a-entity');
+                        entity.setAttribute('mixin', this.data.shape);
+                        this.el.appendChild(entity);
+                    }
+                    var children;
+                    children = this.el.children;
+                },
+
+                tick: function (time) {
+                    var analyserEl;
+                    var children;
+                    var data = this.data;
+                    var levels;
+
+                    analyserEl = data.analyserEl || this.el;
+                    levels = analyserEl.components.audioanalyser.levels;
+                    if (!levels) { return; }
+
+                    children = this.el.children;
+                    for (var i = 0; i < children.length; i++) {
+                        children[i].setAttribute('scale', {
+                            x: 1,
+                            y: Math.min(20, Math.max(levels[i] * 0.06, 0.05)),
+                            z: 1
+                        });
+                    }
+                }  
+            });
+        </script>
+    </head>
+
+    <body>
+        <a-scene antialias="true">
+            <a-assets>
+                <a-mixin id="bar"
+                    geometry="primitive: box"
+                    material="color: black"
+                    scale-y-color="from: 10 120 10; to: 255 160 255; maxScale: 20"
+                ></a-mixin>
+                <audio id="song" src="sweep.mp3" crossorigin="anonymous" autoplay></audio>
+            </a-assets>
+    
+            <a-entity
+                audioanalyser="src: #song"
+                fft
+                fft-bins="8"
+                layout="type: line; radius:10; align: end; margin: 1.01;"
+            ></a-entity>
+    
+            <a-sky color="#ECECEC"></a-sky>
+            <a-entity environment></a-entity>
+        </a-scene>
+    </body>
+</html>

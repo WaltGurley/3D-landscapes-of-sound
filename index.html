@@ -6,9 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
-
-<script src="./aframe-audioanalyser-component.js"></script>
-    <!-- <script src="https://unpkg.com/aframe-audioanalyser-component@^3.0.3/dist/aframe-audioanalyser-component.min.js"></script> -->
+    <script src="./aframe-audioanalyser-component.js"></script>
     <script>
       AFRAME.registerComponent('volume-scale-x', {
         schema: {type: 'number',
@@ -194,7 +192,7 @@
   <body>
     <a-scene>
       <a-assets>
-        <audio id="song" src="Twiight Motel - Twilight Motel - 13 Find Yourself Away From Here.mp3" crossorigin="anonymous" autoplay></audio>
+        <audio id="song" src="TwilightMotel_FindYourselfAwayFromHere.mp3" crossorigin="anonymous" autoplay></audio>
       </a-assets>
 
       <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.08" volume-scale-z="0.24" color-on-beat ring-on-beat position="0 1 -4" shadow></a-box>
