@@ -4,105 +4,12 @@
     <title>Audio Visualizer</title>
     <meta name="description" content="Audio Visualizer">
     <link rel="stylesheet" href="style.css">
+    <script src="./delay-logging-FOR-TESTING.js"></script>
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
     <script src="./aframe-audioanalyser-component.js"></script>
+    <script src="./volume-scale-component.js"></script>
     <script>
-      AFRAME.registerComponent('volume-scale-x', {
-        schema: {type: 'number',
-                 default: 1
-        },
-
-        tick: function () {
-          var analyserEl = this.data.analyserEl || this.el;
-          var analyserComponent;
-          var volume;
-
-          analyserComponent = analyserEl.components.audioanalyser;
-          if (!analyserComponent.analyser) { return; }
-          volume = analyserComponent.volume;
-          // console.log(volume);
-
-          var data = this.data;
-          var object3D = this.el.object3D;
-          object3D.scale.x = volume > 0 ? volume*data : 1;
-        }
-
-//         tick: function () {
-//           var analyserEl = this.data.analyserEl || this.el;
-//           var analyserComponent;
-//           var volume;
-
-//           analyserComponent = analyserEl.components.audioanalyser;
-//           if (!analyserComponent.analyser) { return; }
-//           volume = analyserComponent.volume;
-
-//           var data = this.data;
-//           var object3D = this.el.object3D;
-//           var x = data.multiplier.x === 0 ? zeroScale : volume*data.multiplier.x;
-//           var y = data.multiplier.y === 0 ? zeroScale : volume*data.multiplier.y;
-//           var z = data.multiplier.z === 0 ? zeroScale : volume*data.multiplier.z;
-//           object3D.scale.set(x, y, z);
-//         }
-
-//         tick: function () {
-//           var analyserComponent;
-//           var el = this.el;
-//           var volume;
-
-//           analyserComponent = el.components.audioanalyser;
-//           if (!analyserComponent.analyser) { return; }
-
-//           volume = analyserComponent.volume;
-//           el.setAttribute('scale', {
-//             x: volume * this.data.x,
-//             y: volume * this.data.y,
-//             z: volume * this.data.z
-//           });
-//         }
-      });
-
-      AFRAME.registerComponent('volume-scale-y', {
-        schema: {type: 'number',
-                 default: 1
-        },
-
-        tick: function () {
-          var analyserEl = this.data.analyserEl || this.el;
-          var analyserComponent;
-          var volume;
-
-          analyserComponent = analyserEl.components.audioanalyser;
-          if (!analyserComponent.analyser) { return; }
-          volume = analyserComponent.volume;
-
-          var data = this.data;
-          var object3D = this.el.object3D;
-          object3D.scale.y = volume > 0 ? volume*data : 1;
-        }
-      });
-
-      AFRAME.registerComponent('volume-scale-z', {
-        schema: {type: 'number',
-                 default: 1
-        },
-
-        tick: function () {
-          var analyserEl = this.data.analyserEl || this.el;
-          var analyserComponent;
-          var el = this.el;
-          var volume;
-
-          analyserComponent = analyserEl.components.audioanalyser;
-          if (!analyserComponent.analyser) { return; }
-          volume = analyserComponent.volume;
-
-          var data = this.data;
-          var object3D = this.el.object3D;
-          object3D.scale.z = volume > 0 ? volume*data : 1;
-        }
-      });
-
       AFRAME.registerComponent('color-on-beat', {
         schema: {
           analyserEl: {type: 'selector'}
@@ -192,21 +99,40 @@
   <body>
     <a-scene>
       <a-assets>
-        <audio id="song" src="TwilightMotel_FindYourselfAwayFromHere.mp3" crossorigin="anonymous" autoplay></audio>
+        <audio id="song" src="WaltKevinBeat2.wav" crossorigin="anonymous" autoplay></audio>
       </a-assets>
 
-      <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.08" volume-scale-z="0.24" color-on-beat ring-on-beat position="0 1 -4" shadow></a-box>
-      <a-box color="#aaa" audioanalyser="src: #song" volume-scale-x="0.24" volume-scale-z="0.08" color-on-beat ring-on-beat position="0 5 -4" shadow></a-box>
+      <a-box
+        id='box1'
+        color="#aaa"
+        audioanalyser="src: #song"
+        volume-scale="x: 0.24; z: 0.1"
+        color-on-beat
+        ring-on-beat
+        position="0 2 -10"
+        shadow
+      ></a-box>
+
+      <a-box
+        id="box2"
+        color="#aaa"
+        audioanalyser="src: #song"
+        volume-scale="x: 0.24; y: 0.5"
+        color-on-beat
+        ring-on-beat
+        position="-5 0 -10"
+        shadow
+      ></a-box>
 
       <a-sky color="#ECECEC"></a-sky>
-      <a-entity environment></a-entity>
+      <!-- <a-entity environment></a-entity> -->
     </a-scene>
 
     <div class="audio-controls">
       <button class="control pause-btn interact" type="button" name="pause-button">Pause</button>
       <div class="control volume-adjust">
         <h4 class="volume-label">Volume: </h4>
-        <input type="range" class="volume-slider interact" name="volume-slider" min="0" max="1" value="0.5" step="0.025">
+        <input type="range" class="volume-slider interact" name="volume-slider" min="0" max="1" value="0.02" step="0.025">
       </div>
     </div>
   </body>

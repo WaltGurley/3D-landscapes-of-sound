@@ -16,16 +16,19 @@ function setupAudio() {
     const pauseBtn = document.querySelector('.pause-btn')
     const volumeSlider = document.querySelector('.volume-slider')
 
-    // Toggle play/puase audio on button click
-    pauseBtn.addEventListener('click', function () {
+    // Toggle play/puase audio on button click or playback ended
+    pauseBtn.addEventListener('click', togglePlayButton)
+    document.getElementById('song')
+      .addEventListener('ended', togglePlayButton)
+
+    function togglePlayButton () {
       pauseBtn.innerText = pauseBtn.innerText === "Play" ? "Pause" : "Play"
       if (pauseBtn.innerText === "Play") {
         audio.pause()
       } else if (pauseBtn.innerText === "Pause") {
         audio.play()
       }
-    })
-
+    }
     // Slider to vary the audio volume over a range from 0 to 1, set initial
     // volume to initial slider value
     audio.volume = +volumeSlider.value
