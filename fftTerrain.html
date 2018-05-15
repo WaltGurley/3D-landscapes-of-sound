@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <title>FFT</title>
+        <meta name="description" content="Audio Visualizer">
+        <link rel="stylesheet" href="style.css">
+        <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+        <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+        <script src="./aframe-audioanalyser-component.js"></script>
+        <script src="./scale-y-color.js"></script>
+        <script>
+            var test = [];
+            AFRAME.registerComponent('fft-terrain', {
+                schema: {
+                    bins: {type: 'number', default: 0},             // how many bars?
+                    depth: {type:'number', default: 0},             // how many bars along depth?
+                    delay: {type: 'number', default: 0},            // how many seconds between each depth update?
+                    shape: {default:'bar'}        // what shape / mixin should be drawn for bars?
+                },
+
+                init: function(){
+                    let binAttrib = this.el.getAttribute("fft-terrain-bins");
+                    this.bins = this.data.bins==false? (binAttrib?binAttrib:8) : this.data.bins;   // if user does not provide number of bins in data, then grab from fft-terrain-bins attribute. If unavailalbe, set to 8.
+                    let depthAttrib = this.el.getAttribute("fft-terrain-depth");
+                    this.depth = this.data.depth==false? (depthAttrib?depthAttrib:this.bins) : this.data.depth;   // if user does not provide depth in data, then grab from fft-terrain-depth attribute. If unavailalbe, set to number of bins from fft.
+                    let delayAttrib = this.el.getAttribute("fft-terrain-delay");
+                    let _delay = this.data.delay==false? (delayAttrib?delayAttrib:0.2) : this.data.delay;
+                    this.delay = 1000.0 * _delay;
+                    this.time = 0;
+                    this.terrain = [];    // bins x depth 2D array
+
+                    for (let i = 0; i < this.bins; i++) {
+                        for (let j = 0; j < this.depth; j++) {
+                            var entity = document.createElement('a-entity');
+                            entity.setAttribute('mixin', this.data.shape);
+                            this.el.appendChild(entity);
+                        }
+                    }
+                    var children;
+                    children = this.el.children;
+                },
+
+                tick: function (t) {
+                    if(t > this.time){
+                        this.updateTerrain();
+                        this.time += this.delay;
+                    }
+                },
+
+                updateTerrain: function(){
+                    var analyserEl;
+                    var children;
+                    var data = this.data;
+                    var levelsSource;
+                    var levels = [];
+
+                    analyserEl = data.analyserEl || this.el;
+                    levelsSource = analyserEl.components.audioanalyser.levels;
+                    if (!levelsSource) { return; }
+
+                    // Create custom levels array:
+                    var tempLevel = 0;  // temporary buffer for storing summation of levels, to be averaged later
+                    // var levelGroup = levelsSource.length/this.bins;  // for linear scale: how many levels must be grouped into single bin?
+
+                    var levelCheck = 0;         // for log scale: which frequency bin am I on?
+                    var levelCounter = 0;       // for log scale: how many frequency values in current bin until now?
+                    // Bin on log scale from 0 to this.bins (y = m * log(x) + b)
+                    // b = 0, m = this.bins / log(fft / 2)
+                    for(let i=0; i<levelsSource.length; i++){
+                        var levelLog = Math.floor((this.bins/Math.log10(levelsSource.length) * Math.log10(1+i)));       // for log scale: which bin does current frequency belong to?
+                        tempLevel += levelsSource[i];
+                        levelCounter++;
+                        // console.log(levelCheck, levelLog, levelCounter);
+                        if(levelLog > levelCheck){              // for log scale: if current frequency belongs to higher bin than current, then increment
+                            // console.log("PUSH! " + tempLevel/levelCounter);
+                            levels.push(tempLevel/levelCounter);
+                            tempLevel = 0;
+                            levelCounter = 0;
+                            levelCheck = levelLog;
+                        }
+                    }
+
+                    this.terrain.unshift(levels);
+                    if(this.terrain.length > this.depth) { this.terrain.pop(); }  // Append levels array to beginning. Check if depth is already greater than specified depth. If yes, then pop().
+                    // console.log(this.terrain);
+
+                    children = this.el.children;
+                    for (let z = 0; z < this.terrain.length; z++) {
+                        for(let x = 0; x < this.bins; x++){
+                            var i = x + (z * this.bins);
+                            children[i].setAttribute('scale', {
+                                x: 1,
+                                y: Math.min(5, Math.max(this.terrain[z][x] * 0.015, 0.0125)),
+                                z: 1
+                            });
+                            children[i].setAttribute('position', {
+                                x: -this.bins/2 + 0.5 + x,
+                                y: children[i].getAttribute('scale').y/2,
+                                z: -z -0.5
+                            });
+                        }
+                    }
+                }
+            });
+        </script>
+    </head>
+
+    <body>
+        <a-scene antialias="true">
+            <a-assets>
+                <a-mixin id="bar"
+                    geometry="primitive: box"
+                    material="color: black"
+                    scale-y-color="from:128 128 64; to: 255 255 64; maxScale: 5"
+                    scale="0.5 1 1"
+                ></a-mixin>
+                <audio id="song" src="TwilightMotel_FindYourselfAwayFromHere.mp3" crossorigin="anonymous" autoplay></audio>
+            </a-assets>
+
+            <a-entity
+                id="test"
+                audioanalyser="src: #song"
+                fft-terrain
+                fft-terrain-bins="12"
+                fft-terrain-depth="12"
+                fft-terrain-delay="0.1"
+            ></a-entity>
+
+            <a-sky color="#ECECEC"></a-sky>
+            <!-- <a-entity environment></a-entity> -->
+        </a-scene>
+
+        <div class="audio-controls">
+          <button class="control pause-btn interact" type="button" name="pause-button">Pause</button>
+          <div class="control volume-adjust">
+            <h4 class="volume-label">Volume: </h4>
+            <input type="range" class="volume-slider interact" name="volume-slider" min="0" max="1" value="0.5" step="0.025">
+          </div>
+        </div>
+      </body>
+      <script type="text/javascript" src="./audio-controls.js"></script>
+    </body>
+</html>

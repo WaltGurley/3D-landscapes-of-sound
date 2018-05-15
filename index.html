@@ -8,93 +8,8 @@
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
     <script src="./aframe-audioanalyser-component.js"></script>
-    <script src="./volume-scale-component.js"></script>
-    <script>
-      AFRAME.registerComponent('color-on-beat', {
-        schema: {
-          analyserEl: {type: 'selector'}
-        },
-
-        init: function () {
-          var analyserEl = this.data.analyserEl || this.el;
-          var el = this.el;
-
-          analyserEl.addEventListener('audioanalyser-beat', function () {
-            el.setAttribute('material', 'color', '#' + new THREE.Color(
-              Math.random(), Math.random(), Math.random()
-            ).getHexString());
-          });
-        }
-      });
-
-      AFRAME.registerComponent('ring-on-beat', {
-        schema: {
-          analyserEl: {type: 'selector'}
-        },
-
-        init: function () {
-          var analyserEl = this.data.analyserEl || this.el;
-          var el = this.el;
-          var rings = this.rings = [];
-
-          analyserEl.addEventListener('audioanalyser-beat', function () {
-            var ringEl = document.createElement('a-ring');
-            ringEl.setAttribute('material', 'opacity', '0.6');
-            ringEl.setAttribute('position', '0 -0.5 0');
-            ringEl.setAttribute('rotation', '-90 0 0');
-            el.appendChild(ringEl);
-
-            ringEl.addEventListener('loaded', function () {
-              rings.push(ringEl);
-              setTimeout(function () {
-                el.removeChild(ringEl);
-                rings.splice(rings.indexOf(ringEl), 1);
-              }, 2000);
-            });
-          });
-        },
-
-        /**
-         * Expand ring radii.
-         */
-        tick: function () {
-          this.rings.forEach(function (ringEl) {
-            var scale = ringEl.getAttribute('scale');
-            ringEl.setAttribute('scale', {
-              x: scale.x * 1.06 + .05,
-              y: scale.y * 1.06 + .05,
-              z: scale.z
-            });
-          });
-        }
-      });
-
-      AFRAME.registerComponent('audio-terrain', {
-        schema: {
-          bands: {type: 'number', default: 6}, // number of bands in the terrain
-          speed: {type: 'number', default: 1000}, // speed at which bands move along z-axis
-          size: {type: 'vec3', default:{x:1, y:1, z:1} }
-        },
-
-        tick: function () {
-          var analyserEl = this.data.analyserEl || this.el;
-          var analyserComponent;
-          var el = this.el;
-          var volume;
-
-          analyserComponent = analyserEl.components.audioanalyser;
-          if (!analyserComponent.analyser) { return; }
-
-          volume = analyserComponent.volume * this.data.multiplier;
-          el.setAttribute('scale', {
-            x: volume,
-            y: 1,
-            z: volume
-          });
-        }
-      });
-
-    </script>
+    <script src="./audio-level-scale-component.js"></script>
+    <script src="./frequency-bin-levels-scale-component.js"></script>
   </head>
   <body>
     <a-scene>
@@ -108,10 +23,7 @@
         audioanalyser="src: #song"
         scale="1 1 1"
         audio-level-scale="factor: 1 10 1; offsetY: true"
-        color-on-beat
-        ring-on-beat
         position="0 2 -10"
-        shadow
       ></a-box>
 
       <a-box
@@ -119,11 +31,16 @@
         color="#aaa"
         audioanalyser="src: #song"
         audio-level-scale="factor: 8 2 10"
-        color-on-beat
-        ring-on-beat
         position="-5 0 -10"
-        shadow
       ></a-box>
+
+      <a-entity
+        id="spectrum"
+        audioanalyser="src: #song"
+        position="4 -1 -3"
+        frequency-bin-levels-scale="bands: 1024; lineAlong: x-axis; factor: 0 10 0; offsetY: true"
+        scale="0.5 1 1"
+      ></a-entity>
 
       <a-sky color="#ECECEC"></a-sky>
       <!-- <a-entity environment></a-entity> -->
