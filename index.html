@@ -10,11 +10,12 @@
     <script src="./aframe-audioanalyser-component.js"></script>
     <script src="./audio-level-scale-component.js"></script>
     <script src="./frequency-bin-levels-scale-component.js"></script>
+    <script src="./frequency-bin-time-levels-scale-component.js"></script>
   </head>
   <body>
     <a-scene>
       <a-assets>
-        <audio id="song" src="WaltKevinBeat2.wav" crossorigin="anonymous" autoplay></audio>
+        <audio id="song" src="https://cdn.glitch.com/cf12c71f-5519-4aa8-bf2e-7f6ae1b0ba34%2FTwilightMotel_FindYourselfAwayFromHere.mp3?1526636295807" crossorigin="anonymous" autoplay></audio>
       </a-assets>
 
       <a-box
@@ -37,17 +38,40 @@
       <a-entity
         id="spectrum"
         audioanalyser="src: #song"
-        position="4 -1 -3"
-        frequency-bin-levels-scale="bands: 1024; lineAlong: x-axis; factor: 0 10 0; offsetY: true"
-        scale="0.5 1 1"
+        position="-4 -1 -3"
+        frequency-bin-levels-scale="
+          bins: 8;
+          lineAlong: x-axis;
+          factor: 0 10 0;
+          spacing: 0.1 1 0;
+          offsetY: true;
+        "
+        scale="1 1 1"
       ></a-entity>
 
-      <a-sky color="#ECECEC"></a-sky>
+      <a-entity
+        id="landscape"
+        audioanalyser="src: #song"
+        position="-12 -5 -10"
+        frequency-bin-time-levels-scale="
+          bins: 24;
+          samples: 24;
+          binAlong: x-axis;
+          sampleAlong: z-axis;
+          factor: 0 10 0;
+          offsetY: true;
+          binSpacing: 0.5;
+          sampleSpacing: 0.5;
+        "
+        scale="1 1 1"
+      ></a-entity>
+
+      <a-sky color="#7777EC"></a-sky>
       <!-- <a-entity environment></a-entity> -->
     </a-scene>
 
     <div class="audio-controls">
-      <button class="control pause-btn interact" type="button" name="pause-button">Pause</button>
+      <button class="control pause-btn interact" type="button" name="pause-button">Play</button>
       <div class="control volume-adjust">
         <h4 class="volume-label">Volume: </h4>
         <input type="range" class="volume-slider interact" name="volume-slider" min="0" max="1" value="0.02" step="0.025">

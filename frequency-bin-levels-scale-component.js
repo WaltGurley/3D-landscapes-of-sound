@@ -1,13 +1,14 @@
 // An A-Frame component to modify the x,y,z scale of an element
 AFRAME.registerComponent('frequency-bin-levels-scale', {
     schema: {
-      bands: {type: 'int', default: 8},
+      bins: {type: 'int', default: 8},
       factor: {type: 'vec3'},
+      spacing: {type: 'vec3'},
       lineAlong: {type: 'string', default: 'x-axis'},
       offsetX: {type: 'boolean'},
       offsetY: {type: 'boolean'},
       offsetZ: {type: 'boolean'},
-      scale: {type: 'string', default: 'log'},
+      frequencyScale: {type: 'string', default: 'log'},
       shape: {type: 'string', default: 'box'}
     },
     init: function () {
@@ -26,17 +27,20 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
       // Function that returns a one object array containing the x, y, z
       // posiiton of each child element
       const setChildPosition = (band) => [{
-        x: this.initialPos.x + band * xMultiplier,
-        y: this.initialPos.y + band * yMultiplier,
-        z: this.initialPos.z + band * zMultiplier
+        x: this.initialPos.x + band * xMultiplier +
+          this.data.spacing.x * band,
+        y: this.initialPos.y + band * yMultiplier +
+          this.data.spacing.y * band,
+        z: this.initialPos.z + band * zMultiplier +
+          this.data.spacing.z * band
       }
       ]
 
       // Create a child entity for each band and set some parameters
-      for (let i = 0; i < this.data.bands; i++) {
+      for (let i = 0; i < this.data.bins; i++) {
         const childEntity = document.createElement('a-entity')
         this.el.appendChild(childEntity)
-        childEntity.setAttribute('geometry', { primitive: 'box' })
+        childEntity.setAttribute('geometry', { primitive: this.data.shape })
         childEntity.setAttribute('material', { color: 'black' })
         childEntity.setAttribute('position', ...setChildPosition(i))
       }
@@ -45,26 +49,26 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
       const audioAnalyser = this.el.components.audioanalyser
       if (!audioAnalyser) return console.error(`No audio analyser component connected to element with id=${this.el.id}`);
 
-      // Get average levels of bands
+      // Get average levels of bins
       const levels = audioAnalyser.levels
       let levelsSum = 0;
       let numFrequencies = 0;
       let bandMax = 0
       const bandedLevels = [];
       // Default to log scale if linear isn't explicitly declared
-      if (this.data.scale === 'linear') {
+      if (this.data.frequencyScale === 'linear') {
         // Determine the bandwidth based on the levels sample size and number
-        // of bands
-        const bandWidth = Math.floor(levels.length / this.data.bands)
+        // of bins
+        const bandWidth = Math.floor(levels.length / this.data.bins)
         calculateLinearAverageBins(bandWidth)
       } else {
-        const logBandWidth = this.data.bands / Math.log10(levels.length)
+        const logBandWidth = this.data.bins + 1 / Math.log10(levels.length)
         calculateLogAverageBins(logBandWidth)
       }
 
       // Function that determines the average levels within a specified
       // bandwidth over a linear scale of frequency levels and pushes to an
-      // array of length this.data.bands
+      // array of length this.data.bins
       function calculateLinearAverageBins(bandWidth) {
         for (let i = 0; i < levels.length; i++) {
           levelsSum += levels[i]
@@ -80,7 +84,7 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
 
       // Function that determines the average levels within a specified
       // bandwidth over a log10 scale of frequency levels and pushes to an
-      // array of length this.data.bands
+      // array of length this.data.bins
       function calculateLogAverageBins(bandWidth) {
         for (let i = 0; i < levels.length; i++) {
           levelsSum += levels[i]

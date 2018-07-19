@@ -1,6 +1,8 @@
 // Set audio src fallback and setup controls
 function setupAudio() {
   const audio = document.querySelector('#song')
+  // Stop audio playback initially to prevent being blasted with sound
+  audio.pause()
 
   // Fallback on Payod's glitch repo source if no source is found
   function setAudioSrcFallback() {

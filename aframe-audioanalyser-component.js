@@ -61,7 +61,7 @@
 	  },
 
 	  getOrCreateAnalyser: function (data) {
-	    if (!context) { context = new AudioContext(); }
+	    if (!context) { context = new AudioContext() || new webkitAudioContext(); }
 	    var analysers = this.analysers;
 	    var analyser = context.createAnalyser();
 	    var audioEl = data.src;
