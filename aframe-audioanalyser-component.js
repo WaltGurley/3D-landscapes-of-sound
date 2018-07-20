@@ -86,7 +86,7 @@
 	 */
 	AFRAME.registerComponent('audioanalyser', {
 	  schema: {
-	    enableBeatDetection: {default: true},
+	    enableBeatDetection: {default: false},
 	    enableLevels: {default: true},
 	    enableWaveform: {default: true},
 	    enableVolume: {default: true},

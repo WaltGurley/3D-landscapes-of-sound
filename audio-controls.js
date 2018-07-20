@@ -4,11 +4,11 @@ function setupAudio() {
   // Stop audio playback initially to prevent being blasted with sound
   audio.pause()
 
-  // Fallback on Payod's glitch repo source if no source is found
+  // Fallback on 3d-landscapes-of-sound-starter glitch repo source if no source is found
   function setAudioSrcFallback() {
     audio.addEventListener('error', function (e) {
       if (e.srcElement.error.code === 4) {
-        audio.src = 'https://cdn.glitch.com/81ac89eb-0c4d-4f3f-b3ae-50c7dd330eb3%2F04.%20Stairway%20To%20Heaven.mp3?1523499841739'
+        audio.src = 'https://cdn.glitch.com/1df19d9f-97d0-4eb7-8ca3-3da116ec173e%2FWaltKevinBeat2.wav?1531947653738'
       }
     })
   }

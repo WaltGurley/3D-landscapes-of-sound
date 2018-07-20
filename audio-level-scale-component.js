@@ -1,7 +1,8 @@
 // An A-Frame component to modify the x,y,z scale of an element
 AFRAME.registerComponent('audio-level-scale', {
     schema: {
-      factor: {type: 'vec3'},
+      sizeScale: {type: 'vec3'},
+      positionScale: {type: 'vec3'},
       offsetX: {type: 'boolean'},
       offsetY: {type: 'boolean'},
       offsetZ: {type: 'boolean'}
@@ -22,9 +23,14 @@ AFRAME.registerComponent('audio-level-scale', {
       const object3D = this.el.object3D
 
       // Set the scale values based on volume and scale factor
-      object3D.scale.x = this.initialScale.x * (1 + this.data.factor.x * normalizedLevel)
-      object3D.scale.y = this.initialScale.y * (1 + this.data.factor.y * normalizedLevel)
-      object3D.scale.z = this.initialScale.z * (1 + this.data.factor.z * normalizedLevel)
+      object3D.scale.x = this.initialScale.x * (1 + this.data.sizeScale.x * normalizedLevel)
+      object3D.scale.y = this.initialScale.y * (1 + this.data.sizeScale.y * normalizedLevel)
+      object3D.scale.z = this.initialScale.z * (1 + this.data.sizeScale.z * normalizedLevel)
+
+      // Set the position values based on volume and scale factor
+      object3D.position.x = this.initialPos.x + (1 + this.data.positionScale.x * normalizedLevel)
+      object3D.position.y = this.initialPos.y + (1 + this.data.positionScale.y * normalizedLevel)
+      object3D.position.z = this.initialPos.z + (1 + this.data.positionScale.z * normalizedLevel)
 
       // Set positive offset of element along axis if specified
       if (this.data.offsetX)

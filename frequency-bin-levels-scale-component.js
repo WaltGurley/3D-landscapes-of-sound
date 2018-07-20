@@ -3,26 +3,30 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
     schema: {
       bins: {type: 'int', default: 8},
       factor: {type: 'vec3'},
+      sizeScale: {type: 'vec3'},
+      positionScale: {type: 'vec3'},
       spacing: {type: 'vec3'},
-      lineAlong: {type: 'string', default: 'x-axis'},
+      binAlong: {type: 'string', default: 'x-axis'},
       offsetX: {type: 'boolean'},
       offsetY: {type: 'boolean'},
       offsetZ: {type: 'boolean'},
       frequencyScale: {type: 'string', default: 'log'},
-      shape: {type: 'string', default: 'box'}
+      shape: {type: 'string', default: 'box'},
+      color: {type: 'string', default: 'grey'}
     },
     init: function () {
       // Clone the initial values of the element's scale and position
       this.initialScale = this.el.object3D.scale.clone()
       this.initialPos = this.el.object3D.position.clone()
+      this.childrenInitialPos = []
 
       // Set up the positioning scheme as a line along an axis using the
-      // scale factor of the 'lineAlong' axis
-      const xMultiplier = this.data.lineAlong === 'x-axis' ?
+      // scale factor of the 'binAlong' axis
+      const xMultiplier = this.data.binAlong === 'x-axis' ?
         this.initialScale.x : 0
-      const yMultiplier = this.data.lineAlong === 'y-axis' ?
+      const yMultiplier = this.data.binAlong === 'y-axis' ?
         this.initialScale.y : 0
-      const zMultiplier = this.data.lineAlong === 'z-axis' ?
+      const zMultiplier = this.data.binAlong === 'z-axis' ?
         this.initialScale.z : 0
       // Function that returns a one object array containing the x, y, z
       // posiiton of each child element
@@ -41,8 +45,9 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
         const childEntity = document.createElement('a-entity')
         this.el.appendChild(childEntity)
         childEntity.setAttribute('geometry', { primitive: this.data.shape })
-        childEntity.setAttribute('material', { color: 'black' })
+        childEntity.setAttribute('material', { color: this.data.color })
         childEntity.setAttribute('position', ...setChildPosition(i))
+        this.childrenInitialPos.push(...setChildPosition(i))
       }
     },
     tick: function () {
@@ -62,7 +67,7 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
         const bandWidth = Math.floor(levels.length / this.data.bins)
         calculateLinearAverageBins(bandWidth)
       } else {
-        const logBandWidth = this.data.bins + 1 / Math.log10(levels.length)
+        const logBandWidth = this.data.bins / Math.log10(levels.length)
         calculateLogAverageBins(logBandWidth)
       }
 
@@ -99,21 +104,26 @@ AFRAME.registerComponent('frequency-bin-levels-scale', {
         }
       }
 
-      // Set the scale values of each child based on the average volume of each
-      // band and scale factor
+      // Set the scale values of each child based on the average volume of each band and scale factor
       const children = this.el.children
       for (let i = 0; i < children.length; i++) {
-        children[i].object3D.scale.x = this.initialScale.x * (1 + this.data.factor.x * bandedLevels[i])
-        children[i].object3D.scale.y = this.initialScale.y * (1 + this.data.factor.y * bandedLevels[i])
-        children[i].object3D.scale.z = this.initialScale.z * (1 + this.data.factor.z * bandedLevels[i])
+        const child = children[i].object3D
+
+        child.scale.x = this.initialScale.x * (1 + this.data.sizeScale.x * bandedLevels[i])
+        child.scale.y = this.initialScale.y * (1 + this.data.sizeScale.y * bandedLevels[i])
+        child.scale.z = this.initialScale.z * (1 + this.data.sizeScale.z * bandedLevels[i])
+
+        child.position.x = this.childrenInitialPos[i].x + (1 + this.data.positionScale.x * bandedLevels[i])
+        child.position.y = this.childrenInitialPos[i].y + (1 + this.data.positionScale.y * bandedLevels[i])
+        child.position.z = this.childrenInitialPos[i].z + (1 + this.data.positionScale.z * bandedLevels[i])
 
         // Set positive offset of element along axis if specified
         if (this.data.offsetX)
-          { children[i].object3D.position.x = this.initialPos.x + children[i].object3D.scale.x / 2 }
+          { child.position.x = this.initialPos.x + child.scale.x / 2 }
         if (this.data.offsetY)
-          { children[i].object3D.position.y = this.initialPos.y + children[i].object3D.scale.y / 2 }
+          { child.position.y = this.initialPos.y + child.scale.y / 2 }
         if (this.data.offsetZ)
-          { children[i].object3D.position.z = this.initialPos.z + children[i].object3D.scale.z / 2 }
+          { child.position.z = this.initialPos.z + child.scale.z / 2 }
       }
     }
 })
