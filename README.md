@@ -55,3 +55,32 @@ The maximum position offset to scale an entity along the x, y, or z axis based o
   ...
 ></a-box>
 ```
+
+#### offsetX, offsetY, offsetZ
+Offsets the scaling factor to produce scaling in only one direction along an axis. The offset along each axis is set to false by default and can be enabled by setting the specified property to true. This option can be used with sizeScale to generate bars that have a set baseline and scale in one direction.
+```
+  "offsetX: boolean"
+  "offsetY: boolean"
+  "offsetZ: boolean"
+```
+
+*Example:* scale the size of a box to a maximum of 10 times its initial scale along the y axis and offset the y-axis scaling
+```html
+<a-box
+  ...
+  frequency-spectrum="sizeScale: 0 10 0; offsetY: true;"
+  ...
+></a-box>
+```
+
+### audio-level-scale-component methods
+
+The **Common Methods for All Components** section covers all methods provided by this component
+
+### frequency-spectrum-component methods
+
+TODO ...
+
+### spectrogram-component methods
+
+TODO ...
