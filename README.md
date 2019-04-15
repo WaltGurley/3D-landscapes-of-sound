@@ -1,5 +1,8 @@
 # 3D Landscapes of Sound
 
+[![DOI](https://zenodo.org/badge/141614578.svg)](https://zenodo.org/badge/latestdoi/141614578)
+
+
 > Use A-Frame components to analyze audio and generate real-time audio-reactive 3D objects.
 
 These materials were developed for a workshop as part of the [NCSU Libraries Data and Visualization workshop series](https://www.lib.ncsu.edu/workshops/category/data-and-visualization).
